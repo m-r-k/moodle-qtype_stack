@@ -23,7 +23,7 @@ Contributions to the code base are very welcome.  This is more difficult, but do
 
 ### How do I keep up to date with announcements about STACK?
 
-We will make announcements about progress and developments with STACK on the [Moodle maths tools](http://moodle.org/mod/forum/view.php?id=752) forum. 
+We will make announcements about progress and developments with STACK on the [Moodle maths tools](http://moodle.org/mod/forum/view.php?id=752) forum.
 For the STACK Question Plugin see https://docu.ilias.de/goto_docu_cat_4119.html.
 
 ### How do I report a bug?
@@ -47,10 +47,12 @@ Please do research and publish your experiences of using STACK with students.  A
 ## User Community
 
 ### Exchange of questions
-There is a database of STACK-questions at https://db.ak-mathe-digital.de/domain. Right now, there are over 400 STACK-questions, in many different languages. A filter simplifies the search for specific questions. Questions can easily be exported as xml-files and as such can be used in Moodle as well as in ILIAS. Everybody can contribute their own questions. 
+There is a database of STACK-questions at [https://db.ak-mathe-digital.de/domain](https://db.ak-mathe-digital.de/domain). Right now, there are over 500 STACK-questions, in different languages. A filter simplifies the search for specific questions. Questions can easily be exported as xml-files and as such can be used in Moodle as well as in ILIAS. Everybody can contribute their own questions.
 
 ### Meetings
-The 1st international STACK Conference took place on the 15th and 16th of November 2018 in Fürth at the Friedrich-Alexander-Universität Erlangen-Nürnberg. Further information and slides at https://www.stack-konferenz.de/.
+* The 1st international STACK Conference took place on the 15th and 16th of November 2018 in Fürth at the Friedrich-Alexander-Universität Erlangen-Nürnberg. Further information and slides at https://www.stack-konferenz.de/.
+* The second International STACK user group meeting took place on the 30th of April 2019 at the University of Edinburgh, UK. Further information at https://www.icms.org.uk/perpstack.php.
+* The third international STACK Conference will take place on the 27th and 18th of April 2020 in Tallinn, Estonia.
 
 ### Groups
 Groups of people who use STACK. You are welcome to join, ask questions and participate.
@@ -84,6 +86,8 @@ Polytechnic Institute of Leiria, Leiria, Portugal
 
 School of Computing, Information and Mathematical Sciences, The University of the South Pacific
 : Contact [Dhiraj Bhartu](mailto:dhiraj.bhartu@usp.ac.fj)
+
+Faculty of Mathematics, Ruhr University Bochum, Germany : Contact [Michael Kallweit](mailto:michael.kallweit@rub.de)
 
 Gymnasium Himmelsthür, Hildesheim, Deutschland
 : Contact [Frank Schütte](mailto:fschuett@gymnasium-himmelsthuer.de)
