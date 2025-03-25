@@ -40,9 +40,9 @@ class stack_cas_castext2_adapt extends stack_cas_castext2_block {
             }
         }
 
-        $adaptid = "stack-adapt-" . $this->params['id'];
-        $body = new MP_List([new MP_String('%root')]);
-        $body->items[] = new MP_String('<div id="' . $adaptid . '" ' . $style . '>');
+        $body = new MP_List([new MP_String('adapt')]);
+        $body->items[] = new MP_String($this->params['id']);
+        $body->items[] = new MP_String($style);
 
         foreach ($this->children as $item) {
             $c = $item->compile($format, $options);
@@ -50,14 +50,36 @@ class stack_cas_castext2_adapt extends stack_cas_castext2_block {
                 $body->items[] = $c;
             }
         }
-        $body->items[] = new MP_String('</div>');
 
         return $body;
     }
 
     // phpcs:ignore moodle.Commenting.MissingDocblock.Function
     public function is_flat(): bool {
-        return true;
+        return false;
+    }
+
+    // phpcs:ignore moodle.Commenting.MissingDocblock.Function
+    public function postprocess(array $params, castext2_processor $processor,
+        castext2_placeholder_holder $holder): string {
+        $id = $params[1];
+        $style = $params[2];
+        // Use the input field naming to get the question usage level id.
+        // Add some extra chars to avoid likely collisions with inputs, those cannot
+        // have the `-`-char in their names.
+        $adapt_id = $processor->qa->get_qt_field_name('-adapt_' . $id);
+        
+        $content = "";
+        for ($i = 3; $i < count($params); $i++) {
+            if (is_array($params[$i])) {
+                $content .= $processor->process($params[$i][0], $params[$i], $holder, $processor);
+            } else {
+                $content .= $params[$i];
+            }
+        }
+        
+        $body = "<div id='".$adapt_id."' ".$style.">".$content."</div>";
+        return $body;
     }
 
     // phpcs:ignore moodle.Commenting.MissingDocblock.Function
