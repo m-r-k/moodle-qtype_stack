@@ -29,7 +29,6 @@ require_once(__DIR__ . '/../block.interface.php');
  * This class adds in the adapt blocks to castext.
  */
 class stack_cas_castext2_adapt extends stack_cas_castext2_block {
-
     // phpcs:ignore moodle.Commenting.MissingDocblock.Function
     public function compile($format, $options): ?MP_Node {
 
@@ -40,9 +39,13 @@ class stack_cas_castext2_adapt extends stack_cas_castext2_block {
             }
         }
 
-        $adaptid = "stack-adapt-" . $this->params['id'];
         $body = new MP_List([new MP_String('%root')]);
-        $body->items[] = new MP_String('<div id="' . $adaptid . '" ' . $style . '>');
+        $body->items[] = new MP_String('<div id="');
+        $body->items[] = new MP_List([
+            new MP_String('quid'),
+            new MP_String('stack-adapt-')
+        ]);
+        $body->items[] = new MP_String($this->params['id'] .'" ' . $style . '>');
 
         foreach ($this->children as $item) {
             $c = $item->compile($format, $options);
@@ -71,11 +74,18 @@ class stack_cas_castext2_adapt extends stack_cas_castext2_block {
 
     // phpcs:ignore moodle.Commenting.MissingDocblock.Function
     public function validate(&$errors=[], $options=[]): bool {
+        $usedIds = [];
         if (!array_key_exists('id', $this->params)) {
             $errors[] = new $options['errclass']('Adapt block requires a id parameter.', $options['context'] . '/' .
                 $this->position['start'] . '-' . $this->position['end']);
             return false;
         }
+        if (in_array($this->params['id'], $usedIds)) {
+            $errors[] = new $options['errclass']('Duplicate adapt block id: ' . $this->params['id'] . ' detected.', $options['context'] . '/' .
+                $this->position['start'] . '-' . $this->position['end']);
+            return false;
+        }
+        $usedIds[] = $this->params['id'];
         return true;
     }
 }

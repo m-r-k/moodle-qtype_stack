@@ -61,20 +61,21 @@ class stack_cas_castext2_adaptbutton extends stack_cas_castext2_block {
         $code .= "});\n";
         $code .= "});\n";
 
-        $code .= "function hide_and_show(){";
+        $functioncode1 = "function hide_and_show(questionId='";
+        $functioncode2 = "'){";
         if (isset($this->params['show_ids'])) {
             $splitshowid = preg_split ("/[\ \n\;]+/", $this->params['show_ids']);
             foreach ($splitshowid as &$id) {
-                $code .= "stack_js.toggle_visibility('stack-adapt-" . $id . "',true);";
+                $functioncode2 .= "stack_js.toggle_visibility(questionId+'".$id. "',true);";
             }
         }
         if (isset($this->params['hide_ids'])) {
             $splithideid = preg_split ("/[\ \n\;]+/", $this->params['hide_ids']);
             foreach ($splithideid as &$id) {
-                $code .= "stack_js.toggle_visibility('stack-adapt-" . $id . "',false);";
+                $functioncode2 .= "stack_js.toggle_visibility(questionId+'".$id. "',false);";
             }
         }
-        $code .= "}";
+        $functioncode2 .= "}";
 
         // Now add a hidden [[iframe]] with suitable scripts.
         $body->items[] = new MP_List([
@@ -87,6 +88,12 @@ class stack_cas_castext2_adaptbutton extends stack_cas_castext2_block {
                 new MP_String('script'),
                 new MP_String(json_encode(['type' => 'module'])),
                 new MP_String($code),
+                new MP_String($functioncode1),
+                new MP_List([
+                    new MP_String('quid'),
+                    new MP_String('stack-adapt-')
+                ]),
+                new MP_String($functioncode2)
             ]),
         ]);
 
