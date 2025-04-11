@@ -42,26 +42,63 @@ class stack_cas_castext2_adapt extends stack_cas_castext2_block {
         }
 
         $adaptid = $this->params['id'];
-        $body = new MP_List([new MP_String('%root')]);
-        $body->items[] = new MP_String('<div id="');
+        // $body = new MP_List([new MP_String('%root')]);
+        
+        // $body->items[] = new MP_String('<div id="');
+        // // We use the quid block to make the ids unique.
+        // $body->items[] = new MP_List([new MP_String('quid'), new MP_String("adapt_" . $adaptid)]);
+        // $body->items[] = new MP_String('" ' . $style . '>');
+
+        // foreach ($this->children as $item) {
+        //     $c = $item->compile($format, $options);
+        //     if ($c !== null) {
+        //         $body->items[] = $c;
+        //     }
+        // }
+        // $body->items[] = new MP_String('</div>');
+
+        // return $body;
+
+
+        $items = [];
+
+        $items[] = new MP_String('<div id="');
         // We use the quid block to make the ids unique.
-        $body->items[] = new MP_List([new MP_String('quid'), new MP_String("adapt_" . $adaptid)]);
-        $body->items[] = new MP_String('" ' . $style . '>');
+        $items[] = new MP_List([new MP_String('quid'), new MP_String("adapt_" . $adaptid)]);
+        $items[] = new MP_String('" ' . $style . '>');
 
         foreach ($this->children as $item) {
             $c = $item->compile($format, $options);
             if ($c !== null) {
-                $body->items[] = $c;
+                $items[] = $c;
             }
         }
-        $body->items[] = new MP_String('</div>');
 
-        return $body;
+        $items[] = new MP_String('</div>');
+
+        $body = [];
+        if (!$this->is_flat()) {
+            $body = new MP_List([new MP_String('%root')]);
+            foreach ($items as $i) {
+                $body->items[] = $i;
+            }
+            return $body;
+        } else {
+            return new MP_FunctionCall(new MP_Identifier('sconcat'), $items);
+        }
     }
 
     // phpcs:ignore moodle.Commenting.MissingDocblock.Function
     public function is_flat(): bool {
-        return true;
+        // Now then the problem here is that the flatness depends on the flatness of
+        // the blocks contents. If they all generate strings then we are flat but if not...
+        $flat = true;
+
+        foreach ($this->children as $child) {
+            $flat = $flat && $child->is_flat();
+        }
+
+        return $flat;
     }
 
     // phpcs:ignore moodle.Commenting.MissingDocblock.Function

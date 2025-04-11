@@ -103,7 +103,8 @@ class stack_cas_castext2_adaptbutton extends stack_cas_castext2_block {
 
     // phpcs:ignore moodle.Commenting.MissingDocblock.Function
     public function is_flat(): bool {
-        return true;
+        // Never flat, the [[iframe]] portion needs extra processing.
+        return false;
     }
 
     // phpcs:ignore moodle.Commenting.MissingDocblock.Function
