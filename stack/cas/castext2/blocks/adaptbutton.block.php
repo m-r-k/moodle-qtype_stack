@@ -54,12 +54,14 @@ class stack_cas_castext2_adaptbutton extends stack_cas_castext2_block {
         $list[] = new MP_String('script');
         $list[] = new MP_String(json_encode(['type' => 'module']));
 
+        $input_value = isset($this->params['input_value']) ? $this->params['input_value'] : 'true';
+
         $code = "\nimport {stack_js} from '" . stack_cors_link('stackjsiframe.min.js') . "';\n";
         $code .= "stack_js.request_access_to_input('" . $this->params['save_state'] . "', true).then((id) => {\n";
         $code .= "const input = document.getElementById(id);\n";
         $code .= "if (input.value=='true'){ hide_and_show(); }\n";
         $code .= "stack_js.register_external_button_listener('stack-adaptbutton-". $uid . "', function() {";
-        $code .= "input.value='" . $this->params['input_value'] . "';";
+        $code .= "input.value='" . $input_value . "';";
         $code .= 'input.dispatchEvent(new Event("change"));';
         $code .= "hide_and_show();";
         $code .= "});\n";
@@ -124,9 +126,6 @@ class stack_cas_castext2_adaptbutton extends stack_cas_castext2_block {
         if (!isset($this->params['save_state'])) {
             return $r;
         }
-        if (!isset($this->params['input_value'])) {
-            return $r;
-        }
         return $r;
     }
 
@@ -146,12 +145,6 @@ class stack_cas_castext2_adaptbutton extends stack_cas_castext2_block {
         }
         if (!array_key_exists('save_state', $this->params)) {
             $errors[] = new $options['errclass']('Adaptbutton block requires a save_state parameter.',
-                $options['context'] . '/' .
-                $this->position['start'] . '-' . $this->position['end']);
-            return false;
-        }
-        if (!array_key_exists('input_value', $this->params)) {
-            $errors[] = new $options['errclass']('Adaptbutton block requires a input_value parameter.',
                 $options['context'] . '/' .
                 $this->position['start'] . '-' . $this->position['end']);
             return false;
