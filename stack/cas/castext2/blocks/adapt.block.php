@@ -77,15 +77,27 @@ class stack_cas_castext2_adapt extends stack_cas_castext2_block {
         $items[] = new MP_String('</div>');
 
         $body = [];
-        if (!$this->is_flat()) {
-            $body = new MP_List([new MP_String('%root')]);
+        // if (!$this->is_flat()) {
+        //     echo "<script>console.log('ich bin nicht flach');</script>";
+        //     $body = new MP_List([new MP_String('%root')]);
+        //     foreach ($items as $i) {
+        //         $body->items[] = $i;
+        //     }
+        // } else {
+        //     echo "<script>console.log('ich bin flach');</script>";
+        //     //return new MP_FunctionCall(new MP_Identifier('sconcat'), $items);
+        //     $body = new MP_FunctionCall(new MP_Identifier('sconcat'), [new MP_String('')]);
+        //     foreach ($items as $i) {
+        //         $body->arguments[] = $i;
+        //     }
+        // }
+
+        //always acting like its not flat for quid
+        $body = new MP_List([new MP_String('%root')]);
             foreach ($items as $i) {
                 $body->items[] = $i;
             }
-            return $body;
-        } else {
-            return new MP_FunctionCall(new MP_Identifier('sconcat'), $items);
-        }
+        return $body;
     }
 
     // phpcs:ignore moodle.Commenting.MissingDocblock.Function
