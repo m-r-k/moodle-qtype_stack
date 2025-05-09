@@ -69,15 +69,6 @@ class stack_cas_castext2_adaptprependbutton extends stack_cas_castext2_block {
 
         $list[] = new MP_String($code);
 
-        $newcontent = new MP_List([]);
-
-        foreach ($this->children as $item) {
-            $c = $item->compile($format, $options);
-            if ($c !== null) {
-                $newcontent ->items[] = $c;
-            }
-        }
-
         $list[] = new MP_String("function prepend(){");
         if (isset($this->params['prepend_ids'])) {
             $ids = explode(',', $this->params['prepend_ids']);
@@ -95,12 +86,17 @@ class stack_cas_castext2_adaptprependbutton extends stack_cas_castext2_block {
             $list[] = new MP_String("').then((content) => {");
 
             $list[] = new MP_String("stack_js.switch_content('");
-            // We use the quid block to make the ids unique.
             $list[] = new MP_List([
                 new MP_String('quid'), 
                 new MP_String("adapt_" . $first_id )]);
             $list[] = new MP_String("', content + first_content");
             $list[] = new MP_String(")});");
+
+            $list[] = new MP_String("stack_js.switch_content('");
+            $list[] = new MP_List([
+                new MP_String('quid'), 
+                new MP_String("adapt_" .  $second_id  )]);
+            $list[] = new MP_String("', '' );");
         }
         $list[] = new MP_String("}");
 

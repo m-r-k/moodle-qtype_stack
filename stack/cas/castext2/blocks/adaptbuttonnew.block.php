@@ -33,7 +33,7 @@ stack_cas_castext2_iframe::register_counter('///ADAPTBUTTON_COUNT///');
 /**
  * This class adds in the "adapt button" blocks to castext.
  */
-class stack_cas_castext2_adaptappendbutton extends stack_cas_castext2_block {
+class stack_cas_castext2_adaptbuttonnew extends stack_cas_castext2_block {
 
     // phpcs:ignore moodle.Commenting.MissingDocblock.Function
     public function compile($format, $options): ?MP_Node {
@@ -59,55 +59,17 @@ class stack_cas_castext2_adaptappendbutton extends stack_cas_castext2_block {
         $code = "\nimport {stack_js} from '" . stack_cors_link('stackjsiframe.min.js') . "';\n";
         $code .= "stack_js.request_access_to_input('" . $this->params['save_state'] . "', true).then((id) => {\n";
         $code .= "const input = document.getElementById(id);\n";
-        $code .= "if (input.value=='true'){ append(); }\n";
+        $code .= "if (input.value=='true'){ action(); }\n";
         $code .= "stack_js.register_external_button_listener('stack-adaptbutton-". $uid . "', function() {";
         $code .= "input.value='" . $input_value . "';";
         $code .= 'input.dispatchEvent(new Event("change"));';
-        $code .= "append();";
+        $code .= "action();";
         $code .= "});\n";
         $code .= "});\n";
 
         $list[] = new MP_String($code);
 
-        $newcontent = new MP_List([]);
-
-        foreach ($this->children as $item) {
-            $c = $item->compile($format, $options);
-            if ($c !== null) {
-                $newcontent ->items[] = $c;
-            }
-        }
-
-        $list[] = new MP_String("function append(){");
-        if (isset($this->params['append_ids'])) {
-            $ids = explode(',', $this->params['append_ids']);
-            $first_id = trim($ids[0]);
-            $second_id = trim($ids[1]);
-
-            $list[] = new MP_String("var first_content;");
-            $list[] = new MP_String("stack_js.get_content('");
-            $list[] = new MP_List([new MP_String('quid'), new MP_String("adapt_" . $first_id )]);
-            $list[] = new MP_String("').then((content) => {");
-            $list[] = new MP_String("first_content = content; });");
-
-            $list[] = new MP_String("stack_js.get_content('");
-            $list[] = new MP_List([new MP_String('quid'), new MP_String("adapt_" . $second_id )]);
-            $list[] = new MP_String("').then((content) => {");
-
-            $list[] = new MP_String("stack_js.switch_content('");
-            $list[] = new MP_List([
-                new MP_String('quid'), 
-                new MP_String("adapt_" . $first_id )]);
-            $list[] = new MP_String("', first_content + content");
-            $list[] = new MP_String(")});");
-
-            $list[] = new MP_String("stack_js.switch_content('");
-            $list[] = new MP_List([
-                new MP_String('quid'), 
-                new MP_String("adapt_" .  $second_id  )]);
-            $list[] = new MP_String("', '' );");
-        }
-        $list[] = new MP_String("}");
+        $list = array_merge($list, $this->get_function());
 
         // Now add a hidden [[iframe]] with suitable scripts.
         $body->items[] = new MP_List([
@@ -128,6 +90,85 @@ class stack_cas_castext2_adaptappendbutton extends stack_cas_castext2_block {
         return false;
     }
 
+    private function js_call_with_quid(string $func, string $id, string $arg ): array {
+        $call = [];
+        $call[] = new MP_String("{$func}('");
+        $call[] = new MP_List([
+            new MP_String('quid'),
+            new MP_String("adapt_{$id}")]);
+        $call[] = new MP_String("', {$arg});");
+        return $call;
+    }
+
+    private function get_id_list(string $key): array {
+        return preg_split("/[\ \n\;]+/", $this->params[$key]);
+    }
+
+    private function get_function(): array{
+        $list[] = new MP_String("function action(){");
+
+        //show or/and hide
+        if (isset($this->params['show_ids']) || isset($this->params['hide_ids'])) {
+
+            if (isset($this->params['show_ids'])) {
+                foreach ($this->get_id_list('show_ids') as $id) {
+                    $list = array_merge($list, $this->js_call_with_quid('stack_js.toggle_visibility', $id, 'true'));
+                }
+            }
+            if (isset($this->params['hide_ids'])) {
+                foreach ($this->get_id_list('hide_ids') as $id) {
+                    $list = array_merge($list, $this->js_call_with_quid('stack_js.toggle_visibility', $id, 'false'));
+                }
+            }
+        }
+
+        //replace
+        if (isset($this->params['replace_ids'])) {
+            $ids = explode(',', $this->params['replace_ids']);
+            $new_id = trim($ids[0]);
+            $old_id = trim($ids[1]);
+
+            $list[] = new MP_String("stack_js.get_content('");
+            $list[] = new MP_List([new MP_String('quid'), new MP_String("adapt_" . $old_id )]);
+            $list[] = new MP_String("').then((content) => {");
+
+            $list = array_merge($list, $this->js_call_with_quid('stack_js.switch_content', $new_id, 'content'));
+
+            $list = array_merge($list, $this->js_call_with_quid('stack_js.switch_content', $old_id, "''"));
+
+            $list[] = new MP_String("});");
+        }
+
+        //append or prepend
+        if (isset($this->params['append_ids']) || isset($this->params['prepend_ids'])) {
+            $is_append = isset($this->params['append_ids']);
+            $ids = $is_append ? explode(',', $this->params['append_ids']) : explode(',', $this->params['prepend_ids']);
+            $first_id = trim($ids[0]);
+            $second_id = trim($ids[1]);
+
+
+            $list[] = new MP_String("stack_js.get_content('");
+            $list[] = new MP_List([new MP_String('quid'), new MP_String("adapt_" . $first_id )]);
+            $list[] = new MP_String("').then((firstcontent) => {");
+
+            $list[] = new MP_String("stack_js.get_content('");
+            $list[] = new MP_List([new MP_String('quid'), new MP_String("adapt_" . $second_id )]);
+            $list[] = new MP_String("').then((secondcontent) => {");
+
+            $newcontent = $is_append ? "firstcontent + secondcontent" : "secondcontent + firstcontent";
+            $list = array_merge($list, $this->js_call_with_quid('stack_js.switch_content', $first_id, $newcontent));
+
+            $list = array_merge($list, $this->js_call_with_quid('stack_js.switch_content', $second_id, "''"));
+
+            $list[] = new MP_String("});});");
+        }
+
+        $list[] = new MP_String("}");
+
+        return $list;
+    }
+
+
     // phpcs:ignore moodle.Commenting.MissingDocblock.Function
     public function postprocess(array $params, castext2_processor $processor, castext2_placeholder_holder $holder): string {
         return 'Post processing of adaptbutton blocks never happens, this block is handled through [[iframe]].';
@@ -139,7 +180,7 @@ class stack_cas_castext2_adaptappendbutton extends stack_cas_castext2_block {
         if (!isset($this->params['title'])) {
             return $r;
         }
-        if (!isset($this->params['append_ids'])) {
+        if (!isset($this->params['show_ids']) && !isset($this->params['hide_ids'])) {
             return $r;
         }
         if (!isset($this->params['save_state'])) {
@@ -156,8 +197,12 @@ class stack_cas_castext2_adaptappendbutton extends stack_cas_castext2_block {
             return false;
         }
 
-        if (!array_key_exists('append_ids', $this->params)) {
-            $errors[] = new $options['errclass']('Adaptbutton block requires append_ids parameter.',
+        if (!array_key_exists('show_ids', $this->params) && 
+            !array_key_exists('hide_ids', $this->params) &&
+            !array_key_exists('replace_ids', $this->params) &&
+            !array_key_exists('append_ids', $this->params) &&
+            !array_key_exists('prepend_ids', $this->params) ) {
+            $errors[] = new $options['errclass']('Adaptbutton block requires one of following parameters: show_ids, hide_ids, replace_ids, append_ids or prepend_ids.',
                 $options['context'] . '/' .
                 $this->position['start'] . '-' . $this->position['end']);
             return false;

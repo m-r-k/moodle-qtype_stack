@@ -95,6 +95,13 @@ class stack_cas_castext2_adaptreplacebutton extends stack_cas_castext2_block {
                 new MP_String("adapt_" . $new_id )]);
             $list[] = new MP_String("', content");
             $list[] = new MP_String(")});");
+
+            $list[] = new MP_String("stack_js.switch_content('");
+            // We use the quid block to make the ids unique.
+            $list[] = new MP_List([
+                new MP_String('quid'), 
+                new MP_String("adapt_" .  $old_id  )]);
+            $list[] = new MP_String("', '' );");
         }
         $list[] = new MP_String("}");
 
