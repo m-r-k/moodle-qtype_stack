@@ -180,7 +180,11 @@ class stack_cas_castext2_adaptbuttonnew extends stack_cas_castext2_block {
         if (!isset($this->params['title'])) {
             return $r;
         }
-        if (!isset($this->params['show_ids']) && !isset($this->params['hide_ids'])) {
+        if (!isset($this->params['show_ids']) && 
+            !isset($this->params['hide_ids']) &&
+            !isset($this->params['replace_ids']) &&
+            !isset($this->params['append_ids'])&&
+            !isset($this->params['prepend_ids']) ){
             return $r;
         }
         if (!isset($this->params['save_state'])) {
@@ -207,6 +211,20 @@ class stack_cas_castext2_adaptbuttonnew extends stack_cas_castext2_block {
                 $this->position['start'] . '-' . $this->position['end']);
             return false;
         }
+
+        foreach (['replace_ids', 'append_ids', 'prepend_ids'] as $key) {
+            if (isset($this->params[$key])) {
+                $ids = array_map('trim', explode(',', $this->params[$key]));
+                if (count($ids) !== 2 || in_array('', $ids, true)) {
+                    $errors[] = new $options['errclass'](
+                        "Parameter '{$key}' must contain exactly two IDs separated by a comma.",
+                        $options['context'] . '/' . $this->position['start'] . '-' . $this->position['end']
+                    );
+                    return false;
+                }
+            }
+        }
+        
         if (!array_key_exists('save_state', $this->params)) {
             $errors[] = new $options['errclass']('Adaptbutton block requires a save_state parameter.',
                 $options['context'] . '/' .
